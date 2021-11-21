@@ -99,10 +99,12 @@ def testEmptyNumericLeakIncrease(env):
     pl = conn.pipeline()
 
     repeat = 10
-    docs = 10000
+    docs = 100
 
     for i in range(repeat):
         for j in range(docs):
             x = j + i * docs
             pl.execute_command('HSET', 'doc{}'.format(j), 'n', format(x))
-        pl.execute()
+        results = pl.execute()
+        for res in results:
+            print(res)
