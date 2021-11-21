@@ -99,7 +99,7 @@ def testEmptyNumericLeakIncrease(env):
     pl = conn.pipeline()
 
     repeat = 10
-    docs = 100
+    docs = 10000
 
     for i in range(repeat):
         for j in range(docs):
