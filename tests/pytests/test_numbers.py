@@ -94,6 +94,8 @@ def testEmptyNumericLeakIncrease(env):
     # test numeric field which updates with increasing value
     env.skipOnCluster()
 
+    env.execute_command('FLUSHALL')
+
     conn = getConnectionByEnv(env)
     conn.execute_command('FT.CREATE', 'idx', 'SCHEMA', 'n', 'NUMERIC')
     pl = conn.pipeline()
