@@ -335,6 +335,10 @@ static void rpsortFree(ResultProcessor *rp) {
     rm_free(self->pooledResult);
   }
 
+  if (self->fieldcmp.loadKeys && self->fieldcmp.loadKeys != self->fieldcmp.keys) {
+    rm_free(self->fieldcmp.loadKeys);
+  }
+
   // calling mmh_free will free all the remaining results in the heap, if any
   mmh_free(self->pq);
   rm_free(rp);
@@ -538,6 +542,8 @@ ResultProcessor *RPSorter_NewByFields(size_t maxresults, const RLookupKey **keys
   ret->fieldcmp.ascendMap = ascmap;
   ret->fieldcmp.keys = keys;
   ret->fieldcmp.nkeys = nkeys;
+  ret->fieldcmp.loadKeys = NULL;
+  ret->fieldcmp.nLoadKeys = REDISEARCH_UNINITIALIZED;
   ret->timeout = *timeout;
   ret->timeoutLimiter = 0;
 
