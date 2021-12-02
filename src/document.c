@@ -500,6 +500,9 @@ FIELD_PREPROCESSOR(vectorPreprocessor) {
   fdata->vector = RedisModule_StringPtrLen(field->text, &len);
   fdata->vecLen = len;
   aCtx->fwIdx->maxFreq++;
+  if (FieldSpec_IsSortable(fs)) {
+    QueryError_SetError(status, QUERY_EGENERIC, "Vector field cannot be sortable");
+  }
   return 0;
 }
 

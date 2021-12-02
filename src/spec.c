@@ -1100,8 +1100,6 @@ RedisModuleString *IndexSpec_GetFormattedKey(IndexSpec *sp, const FieldSpec *fs,
         ret = TagIndex_FormatName(&sctx, fs->name);
         break;
       case INDEXFLD_T_VECTOR:
-        // TODO: remove the whole thing
-        // NOT NECESSARY ANYMORE - used when field were in keyspace
         ret = RedisModule_CreateString(sctx.redisCtx, fs->name, strlen(fs->name));
         break;
       case INDEXFLD_T_FULLTEXT:  // Text fields don't get a per-field index
@@ -1325,7 +1323,6 @@ static const FieldType fieldTypeMap[] = {[IDXFLD_LEGACY_FULLTEXT] = INDEXFLD_T_F
                                          [IDXFLD_LEGACY_NUMERIC] = INDEXFLD_T_NUMERIC,
                                          [IDXFLD_LEGACY_GEO] = INDEXFLD_T_GEO,
                                          [IDXFLD_LEGACY_TAG] = INDEXFLD_T_TAG};
-                                         // CHECKED: Not related to new data types - legacy code
 
 static int FieldSpec_RdbLoad(RedisModuleIO *rdb, FieldSpec *f, int encver) {
 

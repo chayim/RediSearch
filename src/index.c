@@ -1916,7 +1916,7 @@ void printIteratorProfile(RedisModuleCtx *ctx, IndexIterator *root, size_t count
     case EMPTY_ITERATOR:      { printEmptyIt(ctx, root, counter, cpuTime, depth, limited);      break; }
     case ID_LIST_ITERATOR:    { printIdListIt(ctx, root, counter, cpuTime, depth, limited);     break; }
     case PROFILE_ITERATOR:    { printProfileIt(ctx, root, 0, 0, depth, limited);                break; }
-    case LIST_ITERATOR:       { printListIt(ctx, root, 0, 0, depth, limited);                break; }
+    case LIST_ITERATOR:       { printListIt(ctx, root, 0, 0, depth, limited);                   break; }
     default:          { RS_LOG_ASSERT(0, "nope");   break; }
   }
 }

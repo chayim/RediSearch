@@ -605,8 +605,7 @@ static IndexIterator *Query_EvalNumericNode(QueryEvalCtx *q, QueryNode *node) {
   return NewNumericFilterIterator(q->sctx, node->nn.nf, q->conc, INDEXFLD_T_NUMERIC);
 }
 
-static IndexIterator *Query_EvalGeofilterNode(QueryEvalCtx *q, QueryNode *node,
-                                              double weight) {
+static IndexIterator *Query_EvalGeofilterNode(QueryEvalCtx *q, QueryNode *node) {
   const FieldSpec *fs =
       IndexSpec_GetField(q->sctx->spec, node->gn.gf->property, strlen(node->gn.gf->property));
   if (!fs || !FIELD_IS(fs, INDEXFLD_T_GEO)) {
@@ -615,7 +614,8 @@ static IndexIterator *Query_EvalGeofilterNode(QueryEvalCtx *q, QueryNode *node,
   return NewGeoRangeIterator(q->sctx, node->gn.gf);
 }
 
-static IndexIterator *Query_EvalVectorNode(QueryEvalCtx *q, QueryVectorNode *node) {
+static IndexIterator *Query_EvalVectorNode(QueryEvalCtx *q, QueryNode *qn) {
+  QueryVectorNode *node = &qn->vn;
   const FieldSpec *fs =
       IndexSpec_GetField(q->sctx->spec, node->vf->property, strlen(node->vf->property));
   if (!fs || !FIELD_IS(fs, INDEXFLD_T_VECTOR)) {
@@ -625,7 +625,8 @@ static IndexIterator *Query_EvalVectorNode(QueryEvalCtx *q, QueryVectorNode *nod
   return NewVectorIterator(q->sctx, node->vf);
 }
 
-static IndexIterator *Query_EvalIdFilterNode(QueryEvalCtx *q, QueryIdFilterNode *node) {
+static IndexIterator *Query_EvalIdFilterNode(QueryEvalCtx *q, QueryNode *qn) {
+  QueryIdFilterNode *node = &qn->fn;
   return NewIdListIterator(node->ids, node->len, 1);
 }
 
@@ -902,11 +903,11 @@ IndexIterator *Query_EvalNode(QueryEvalCtx *q, QueryNode *n) {
     case QN_OPTIONAL:
       return Query_EvalOptionalNode(q, n);
     case QN_GEO:
-      return Query_EvalGeofilterNode(q, n, n->opts.weight);
+      return Query_EvalGeofilterNode(q, n);
     case QN_VECTOR:
-      return Query_EvalVectorNode(q, &n->vn);
+      return Query_EvalVectorNode(q, n);
     case QN_IDS:
-      return Query_EvalIdFilterNode(q, &n->fn);
+      return Query_EvalIdFilterNode(q, n);
     case QN_WILDCARD:
       return Query_EvalWildcardNode(q, n);
     case QN_NULL:

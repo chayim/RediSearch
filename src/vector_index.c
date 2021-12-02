@@ -77,7 +77,7 @@ IndexIterator *NewVectorIterator(RedisSearchCtx *ctx, VectorFilter *vf) {
       }
       
       VecSimQueryParams qParams = {.hnswRuntimeParams.efRuntime = vf->efRuntime};
-      vf->results = VecSimIndex_TopKQuery(vecsim, vector, vf->value, &qParams, BY_ID );
+      vf->results = VecSimIndex_TopKQuery(vecsim, vector, vf->value, &qParams, BY_ID);
       vf->resultsLen = VecSimQueryResult_Len(vf->results);
       if (vf->isBase64) {
         rm_free(vector);
@@ -100,18 +100,18 @@ VectorQueryType VectorFilter_ParseType(const char *s, size_t len) {
   if (!strncasecmp(s, "TOPK", len)) {
     return VECTOR_SIM_TOPK;
   } else if (!strncasecmp(s, "RANGE", len)) {
-    return VECTOR_SIM_TOPK;
+    RS_LOG_ASSERT(0, "Range isn't supported yet");
   } else {
     return VECTOR_SIM_INVALID;
   }
 }
 
 int VectorFilter_Validate(const VectorFilter *vf, QueryError *status) {
-    if (vf->type == VECTOR_SIM_INVALID) {
-      QERR_MKSYNTAXERR(status, "Invalid Vector similarity type");
-      return 0;
-    }
-    return 1;
+  if (vf->type == VECTOR_SIM_INVALID) {
+    QERR_MKSYNTAXERR(status, "Invalid Vector similarity type");
+    return 0;
+  }
+  return 1;
 }
 
 int VectorFilter_EvalParams(dict *params, QueryNode *node, QueryError *status) {
