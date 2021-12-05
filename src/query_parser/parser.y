@@ -317,7 +317,7 @@ attribute(A) ::= ATTRIBUTE(B) COLON param_term(C). {
       value_len = found_value_len;
     }
   }
-  A = (QueryAttribute){ .name = B.s, .namelen = B.len, .value = rm_strndup(value, value_len), .vallen = value_len };
+  A = (QueryAttribute){ .name = B.s, .namelen = B.len, .value = value, .vallen = value_len };
 }
 
 attribute_list(A) ::= attribute(B) . {
