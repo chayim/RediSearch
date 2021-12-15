@@ -12,6 +12,7 @@
 #define NR_EXPONENT 4
 #define NR_MAXRANGE_CARD 2500
 #define NR_MAXRANGE_SIZE 10000
+#define USE_CARDINALITY 0
 
 typedef struct {
   IndexIterator *it;
@@ -52,7 +53,7 @@ int NumericRange_Overlaps(NumericRange *n, double min, double max) {
 size_t NumericRange_Add(NumericRange *n, t_docId docId, double value, int checkCard) {
 
   int add = 0;
-  if (checkCard) {
+  if (checkCard && USE_CARDINALITY) {
     add = 1;
     size_t card = n->card;
     for (int i = 0; i < array_len(n->values); i++) {
@@ -66,7 +67,7 @@ size_t NumericRange_Add(NumericRange *n, t_docId docId, double value, int checkC
   }
   if (n->minVal == NF_NEGATIVE_INFINITY || value < n->minVal) n->minVal = value;
   if (n->maxVal == NF_INFINITY || value > n->maxVal) n->maxVal = value;
-  if (add) {
+  if (add && USE_CARDINALITY) {
     if (n->card < n->splitCard) {
       CardinalityValue val = {.value = value, .appearances = 1};
       n->values = array_append(n->values, val);
@@ -74,6 +75,7 @@ size_t NumericRange_Add(NumericRange *n, t_docId docId, double value, int checkC
     }
     ++n->card;
   }
+  n->unique_sum += value;
 
   size_t size = InvertedIndex_WriteNumericEntry(n->entries, docId, value);
   n->invertedIndexSize += size;
@@ -83,7 +85,7 @@ size_t NumericRange_Add(NumericRange *n, t_docId docId, double value, int checkC
 double NumericRange_Split(NumericRange *n, NumericRangeNode **lp, NumericRangeNode **rp,
                           NRN_AddRv *rv) {
 
-  double split = (n->unique_sum) / (double)n->card;
+  double split = (n->unique_sum) / (double)n->entries->numDocs;
 
   // printf("split point :%f\n", split);
   *lp = NewLeafNode(n->entries->numDocs / 2 + 1, n->minVal, split,
@@ -202,7 +204,8 @@ NRN_AddRv NumericRangeNode_Add(NumericRangeNode *n, t_docId docId, double value)
   // printf("Added %d %f to node %f..%f, card now %zd, size now %zd\n", docId, value,
   // n->range->minVal,
   //        n->range->maxVal, card, n->range->entries->numDocs);
-  if (card >= n->range->splitCard || (n->range->entries->numDocs > NR_MAXRANGE_SIZE && card > 1)) {
+  if ((card >= n->range->splitCard && USE_CARDINALITY) ||
+      (n->range->entries->numDocs > NR_MAXRANGE_SIZE && (card > 1 || !USE_CARDINALITY))) {
 
     // split this node but don't delete its range
     double split = NumericRange_Split(n->range, &n->left, &n->right, &rv);
