@@ -1204,7 +1204,7 @@ static int NI_ReadSorted(void *ctx, RSIndexResult **hit) {
 
     // read the next entry from the child
     if (nc->child->Read(nc->child->ctx, &cr) == INDEXREAD_EOF) {
-      break;
+      goto ok;
     }
   }
 
